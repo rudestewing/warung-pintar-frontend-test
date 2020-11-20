@@ -98,7 +98,7 @@ function PokemonsIndex(props) {
                         valueName: e.target.value,
                     });
                 }} value={filter.valueName}>
-                    <option value={null}> All </option>
+                    <option value=""> All </option>
                     {
                         availableTypes.map((availableType, index) => {
                             return (

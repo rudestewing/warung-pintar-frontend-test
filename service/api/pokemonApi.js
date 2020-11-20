@@ -2,7 +2,7 @@ import pokeapiHttp from '../../lib/http/pokeapiHttp';
 
 async function fetchByType(page, filter) {
     console.log('filter by ', filter);
-    if(!filter.name) {
+    if(!filter.name || !filter.valueName) {
         return {
             results: [],
             count: 0,
@@ -50,14 +50,16 @@ async function fetchGlobal(page) {
         
     } catch (error) {
         console.log(error);
-        return null;
+        return {
+            results: [],
+            count: 0
+        };
     }
 }
 
 export async function fetch(page, filter) {
     switch (filter.name) {
         case 'type':
-            console.log(filter);
             return fetchByType(page, filter);
 
         default:
