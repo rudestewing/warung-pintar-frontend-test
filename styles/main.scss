@@ -1,0 +1,15 @@
+@import 'tailwindcss/base';
+
+html, body {
+    @apply h-full bg-gray-400;
+    
+}
+
+@import 'tailwindcss/components';
+
+#__next {
+    @apply min-h-full bg-gray-200 relative;
+    @apply max-w-screen-md mx-auto;
+}
+
+@import 'tailwindcss/utilities';
