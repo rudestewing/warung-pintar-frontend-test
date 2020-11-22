@@ -1,27 +1,31 @@
 import {useRouter} from 'next/router';
 import { useEffect, useState } from 'react';
-import {fetch as fetchPokemons, getByName} from '../service/api/pokemonApi';
-import {fetchAll} from '../service/api/typeApi';
-import Link from 'next/link';
+import pokemonApi from '../service/api/pokemonApi';
+import typeApi from '../service/api/typeApi';
+import PokemonList from '../components/PokemonList';
+import usePageBottom from '../lib/hooks/usePageBottom';
+import { func } from 'prop-types';
 
 function PokemonsIndex(props) {
     const router = useRouter();
     const [pokemons, setPokemons] = useState([]);
     const [page, setPage] = useState(router.query.page || 1);
     const [filter, setFilter] = useState({
-        name: router.query.type ? 'type' : null,
-        valueName: router.query.type || '',
+        name: null,
+        value: '',
     });
     const [availableTypes, setAvailableTypes] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [initialized, setInitialized] = useState(false);
-
+    const [loading, setLoading] = useState(false); 
+    
+    const isPageBottom = usePageBottom();
 
     async function fetchData() {
-        const pokemon = await fetchPokemons(page, filter);
+        const pokemon = await pokemonApi.fetch(page, filter);
+        
         return await Promise.all(
             pokemon.results.map(async (item) => {
-                const pokemon = await getByName(item.name);
+                const pokemon = await pokemonApi.getByName(item.name);
                 if(pokemon) {
                     const {
                         id,
@@ -34,9 +38,7 @@ function PokemonsIndex(props) {
                         id,
                         name,
                         types,
-                        sprites: {
-                            front_default: sprites.front_default
-                        }    
+                        sprites
                     };
                 }
                 return item;
@@ -45,7 +47,7 @@ function PokemonsIndex(props) {
     }
 
     useEffect(async () => {
-        const types = await fetchAll();
+        const types = await typeApi.fetchAll();
         setAvailableTypes([...types]);
         setPokemons([]);
         setInitialized(false);
@@ -54,14 +56,11 @@ function PokemonsIndex(props) {
 
         setPokemons([...activePokemons]);
         setInitialized(true);
-                
-        return () => {
-
-        }
     }, [])
 
     useEffect(async () => {
         if(initialized) {
+            setPage(1);
             setPokemons([]);
             const activePokemons = await fetchData();
             setPokemons([...activePokemons]);
@@ -79,25 +78,27 @@ function PokemonsIndex(props) {
         }
     }, [page]);
 
-
-    function loadMore() {
-        setPage(page+1);
-    }
-
-    function loadPrevious() {
-        let _page = page -1;
-        setPage(_page > 0 ? _page : 0);
-    }
+    useEffect(() => {
+        if(initialized) {
+            setPage(page + 1);
+        }
+    }, [isPageBottom]);
     
     return (
         <div>
-            <div>
+            <div className="mb-3">
                 <select onChange={(e) => {
+                    if(e.target.value == '') {
+                        return setFilter({
+                            name: null,
+                            value: null,
+                        });
+                    }
                     return setFilter({
                         name: 'type',
-                        valueName: e.target.value,
+                        value: e.target.value,
                     });
-                }} value={filter.valueName}>
+                }} value={filter.value || ''}>
                     <option value=""> All </option>
                     {
                         availableTypes.map((availableType, index) => {
@@ -110,28 +111,16 @@ function PokemonsIndex(props) {
                     }
                 </select>
             </div>
-            <div>
-                <button onClick={loadPrevious}>Load Previous</button>
+            {
+                pokemons.length
+                    ? <PokemonList pokemons={pokemons} />
+                    : ('')
+            }
+            <div className="mb-3">
+                <button onClick={() => setPage(page + 1)} disabled={loading ? true : false}>
+                    {loading ? 'loading ...' : 'load more'}
+                </button>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {
-                    pokemons.map((pokemon, index) => {
-                        return (
-                            <Link key={index} href={`/pokemons/${pokemon.name}`} className="cursor-pointer hover:cursor-pointer" >
-                                <div key={index} className="bg-white rounded-lg shadow-lg cursor-pointer hover:cursor-pointer">
-                                    <div>
-                                        {pokemon.name}
-                                    </div>
-                                    <img src={pokemon.sprites.front_default} alt=""/>
-                                </div>
-                            </Link>
-                        )
-                    })
-                }
-            </div>
-            <button onClick={loadMore} disabled={loading ? true : false}>
-                {loading ? 'loading ...' : 'load more'}
-            </button>
         </div>
     )
 }
