@@ -1,11 +1,10 @@
-import { data } from 'autoprefixer';
-import pokeapiHttp from '../../lib/http/pokeApiHttp';
+import pokeApiHttp from '../../lib/http/pokeApiHttp';
 
 async function fetchAll() {
     let data = [];
 
     try {
-        const response = await pokeapiHttp.get('type');
+        const response = await pokeApiHttp.get('type');
         data = [...response.data.results];
     } catch (error) {
         console.log(error);

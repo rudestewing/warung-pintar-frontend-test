@@ -4,7 +4,8 @@ async function fetchByType(page = 1, filterValue = null) {
     const data = {
         results: [],
         count: 0,
-        next: null
+        next: null,
+        previous: null,
     }
 
     try {
@@ -30,7 +31,8 @@ async function fetchGlobal(page) {
     const data = {
         results: [],
         count: 0,
-        next: null
+        next: null,
+        previous: null,
     }
     
     let offset;
@@ -49,6 +51,8 @@ async function fetchGlobal(page) {
         data.count = response.data.count;
         data.results = response.data.results;
         data.next = response.data.next || null;
+        data.previous = response.data.previous || null;
+        
     } catch (error) {
         console.log(error);
     } finally {
@@ -69,7 +73,6 @@ async function getByName(value) {
 
     try {
         const response = await pokeApiHttp.get(`/pokemon/${value}`);
-        // const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${value}`);
         data = response.data;
     } catch (error) {
         console.log(error);

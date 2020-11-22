@@ -4,6 +4,7 @@ import pokemonApi from '../services/api/pokemonApi';
 import typeApi from '../services/api/typeApi';
 import PokemonList from "../components/PokemonList";
 import usePageBottom from "../lib/hooks/usePageBottom";
+import { func } from "prop-types";
 
 function Index(props) {
     const router = useRouter();
@@ -13,10 +14,10 @@ function Index(props) {
 
     const [filter, setFilter] = useState({
         page: props.query.page ? parseInt(props.query.page) : 1,
-        type: props.query.type ? String(props.query.type) : null,
+        type: props.query.type ? String(props.query.type) : '',
     });
 
-    const [hasNext, setHasNext] = useState(null);
+    const [hasNext, setHasNext] = useState(false);
 
     const isPageBottom = usePageBottom();
     
