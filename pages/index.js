@@ -83,7 +83,8 @@ function Index(props) {
     }, [isPageBottom]);
 
     useEffect(() => {
-        if(filter.page > 1) {
+        console.log('page effect');
+        if(filter.page > 1 && !isFetching) {
             router.push({
                 pathname: '/',
                 query: {
@@ -96,24 +97,42 @@ function Index(props) {
     }, [filter.page]);
 
     useEffect(() => {
+        console.log('type effect');
         initLoad();
     }, [filter.type])
 
     async function initLoad() {
-        setIsFetching(true);
-        setPokemons([]);
-        const activePokemons = await fetchPokemons();
-        setPokemons([...activePokemons]);
-        setIsFetching(false);
+        if(!isFetching) {
+            setIsFetching(true);
+            setPokemons([]);
+            const activePokemons = await fetchPokemons();
+            setPokemons([...activePokemons]);
+            setIsFetching(false);
+        }
     }
 
     async function loadMore() {
-        if(hasNext) {
+        if(hasNext && !isFetching) {
             setIsFetching(true);
             const activePokemons = await fetchPokemons();
             setPokemons([...pokemons, ...activePokemons]);
             setIsFetching(false);
         }
+    }
+
+    function handleResetFilter() {
+        setFilter({
+            page: 1,
+            type: '',
+        });
+
+        router.push({
+            pathname: '/',
+            query: {
+                page: 1,
+                type: ''
+            }
+        })
     }
 
     return (
@@ -132,11 +151,28 @@ function Index(props) {
                         }
                     </select>
                 </div>
+                <div>
+                    {
+                        filter.type ? 
+                        <button onClick={handleResetFilter} className="bg-yellow-500 py-2 px-4 block w-full">Reset Filter</button>
+                        : ('')
+                    }
+                </div>
             </div>
             
             {
                 !pokemons.length ||
                     <PokemonList pokemons={pokemons} />
+            }
+
+            {
+                !isFetching || 
+                    (
+                        <div>
+                            Fetching Pokemons ...
+                        </div>
+                    )
+
             }
 
             <div className="my-5 text-center">
