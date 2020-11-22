@@ -17,7 +17,7 @@ export default function PokemonCard(props) {
         },
         {
             name: "fighting",
-            bgClass: 'bg-gray-300',
+            bgClass: 'bg-red-200',
             textClass: '',
         },
         {
@@ -37,7 +37,7 @@ export default function PokemonCard(props) {
         },
         {
             name: "rock",
-            bgClass: 'bg-orange-500',
+            bgClass: 'bg-yellow-500',
             textClass: '',
         },
         {
@@ -121,7 +121,6 @@ export default function PokemonCard(props) {
 
         if(firstType) {
             const selectedType = availableTypes.find((availableType) => {
-                console.log(firstType.type.name);
                 return String(availableType.name) === String(firstType.type.name);
             });
 
@@ -135,12 +134,12 @@ export default function PokemonCard(props) {
             <div className={`font-bold tracking-wider ${textClass}`}>
                 {String(pokemon.name).toUpperCase()}
             </div>
-            <div className="flex">
+            <div className="flex my-3">
                 <div className="w-1/3 pr-2">
                     {
                         pokemon.types.map((type, index) => {
                             return (
-                                <div key={index}>
+                                <div key={index} className={textClass}>
                                     {type.type.name}
                                 </div>
                             )

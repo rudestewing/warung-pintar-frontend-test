@@ -1,7 +1,6 @@
 import pokeApiHttp from '../../lib/http/pokeApiHttp';
 
 async function fetchByType(page = 1, filterValue = null) {
-    console.log('fetch by type ', page, filterValue);
     const data = {
         results: [],
         count: 0,
@@ -58,7 +57,6 @@ async function fetchGlobal(page) {
 }
 
 async function fetch({page = 1, type = null}) {
-    console.log(page, type);
     if(type) {
         return fetchByType(page, type);
     }
