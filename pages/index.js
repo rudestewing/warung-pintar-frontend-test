@@ -4,13 +4,13 @@ import pokemonApi from '../services/api/pokemonApi';
 import typeApi from '../services/api/typeApi';
 import PokemonList from "../components/PokemonList";
 import usePageBottom from "../lib/hooks/usePageBottom";
-import { func } from "prop-types";
 
 function Index(props) {
     const router = useRouter();
     const [pokemons, setPokemons] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
     const [availableTypes, setAvailableTypes] = useState([]);
+    const [totalPokemons, setTotalPokemons] = useState(0);
 
     const [filter, setFilter] = useState({
         page: props.query.page ? parseInt(props.query.page) : 1,
@@ -18,6 +18,7 @@ function Index(props) {
     });
 
     const [hasNext, setHasNext] = useState(false);
+    const [hasPrevious, setHasPrevious] = useState(false);
 
     const isPageBottom = usePageBottom();
     
@@ -41,10 +42,11 @@ function Index(props) {
         setAvailableTypes([...types]);
     }
 
-    async function fetchPokemons() {
-        const pokemonData = await pokemonApi.fetch(filter);
+    async function fetchPokemons(activeFilter) {
+        const pokemonData = await pokemonApi.fetch(activeFilter);
         setHasNext(pokemonData.next ? true : false);
-        
+        setTotalPokemons(pokemonData.count);
+
         return await Promise.all(
             pokemonData.results.map(async (item) => {
                 const pokemon = await pokemonApi.getByName(item.name);
@@ -68,6 +70,17 @@ function Index(props) {
             })
         );
     }
+
+    useEffect(() => {
+        setHasPrevious(false);
+
+        if(!filter.type) {
+            let mustCountPerPage = (filter.page * 20);
+            if((pokemons.length < mustCountPerPage) && pokemons.length < totalPokemons) {
+                setHasPrevious(true);
+            }
+        }
+    }, [pokemons]);
 
     useEffect(() => {
         fetchAllTypes();
@@ -103,7 +116,7 @@ function Index(props) {
         if(!isFetching) {
             setIsFetching(true);
             setPokemons([]);
-            const activePokemons = await fetchPokemons();
+            const activePokemons = await fetchPokemons(filter);
             setPokemons([...activePokemons]);
             setIsFetching(false);
         }
@@ -112,8 +125,27 @@ function Index(props) {
     async function loadMore() {
         if(hasNext && !isFetching) {
             setIsFetching(true);
-            const activePokemons = await fetchPokemons();
+            const activePokemons = await fetchPokemons(filter);
             setPokemons([...pokemons, ...activePokemons]);
+            setIsFetching(false);
+        }
+    }
+
+    async function loadPrevious() {
+        let limit = 20;
+        if(hasPrevious) {
+            setIsFetching(true);
+
+            let mustCountPerPage = (filter.page * limit);
+            let countRestOfPokemons = mustCountPerPage - pokemons.length;
+            let previousPage = countRestOfPokemons / limit;
+
+            const activePokemons = await fetchPokemons({
+                ...filter,
+                page: previousPage,
+            });
+
+            setPokemons([...activePokemons, ...pokemons]);
             setIsFetching(false);
         }
     }
@@ -157,6 +189,20 @@ function Index(props) {
                     }
                 </div>
             </div>
+
+            {
+                hasPrevious > 0 ?
+                    (
+                        <div className="my-5 text-center">
+                            <button onClick={loadPrevious}
+                            className="py-2 px-3 rounded-lg bg-blue-400"
+                            > 
+                                Load Previous
+                            </button>
+                        </div>
+                    )
+                    : ('')
+            }
             
             {
                 !pokemons.length ||
@@ -172,11 +218,10 @@ function Index(props) {
                     )
 
             }
-
-            <div className="my-5 text-center">
-                {
-                    !isFetching && hasNext ? 
-                        (
+            {
+                !isFetching && hasNext ? 
+                    (
+                        <div className="my-5 text-center">
                             <button onClick={(e) => setFilter({
                                 ...filter,
                                 page: filter.page + 1
@@ -185,11 +230,10 @@ function Index(props) {
                             > 
                                 Load More 
                             </button>
-                            
-                        ) : 
-                        ('')
-                }
-            </div>
+                        </div>
+                    ) : 
+                    ('')
+            }
             <button onClick={() => window.scrollTo(0, 0)} className="bg-blue-800 text-white px-2 py-2 fixed z-10 block w-auto h-auto rounded-lg opacity-75 hover:opacity-100" style={{bottom: 0, right: 0, margin: '0 15px 15px 0'}}>
                 ^ back to top
             </button>

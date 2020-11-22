@@ -7,6 +7,7 @@ import PokemonBaseStats from '../../components/PokemonBaseStats';
 
 function PokemonDetail(props) {
     const {pokemon} = props;
+    const router = useRouter();
     const [activeAvatar, setActiveAvatar] = useState(pokemon.sprites.front_default || '');
     const [frontAvatar] = useState(pokemon.sprites.front_default || '');
     const {textClass, bgClass} = usePokemonTypeStyle(pokemon);
@@ -22,9 +23,9 @@ function PokemonDetail(props) {
     return (
         <div className="">
             <div className="text-center mb-4">
-                <Link href="/">
-                    <a className="text-blue-500 underline">Back to Home</a>
-                </Link>
+                {/* <Link href="/"> */}
+                    <a onClick={() => router.back()} className="text-blue-500 underline">Back</a>
+                {/* </Link> */}
             </div>
             <div className={`flex flex-col items-center ${bgClass} py-5`}>
                 {
