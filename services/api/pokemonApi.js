@@ -74,6 +74,7 @@ async function getByName(value) {
     try {
         const response = await pokeApiHttp.get(`/pokemon/${value}`);
         data = response.data;
+        console.log(data);
     } catch (error) {
         console.log(error);
     } finally {

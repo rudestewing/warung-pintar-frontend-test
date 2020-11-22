@@ -83,7 +83,6 @@ function Index(props) {
     }, [isPageBottom]);
 
     useEffect(() => {
-        console.log('page effect');
         if(filter.page > 1 && !isFetching) {
             router.push({
                 pathname: '/',
@@ -97,7 +96,6 @@ function Index(props) {
     }, [filter.page]);
 
     useEffect(() => {
-        console.log('type effect');
         initLoad();
     }, [filter.type])
 
@@ -136,7 +134,7 @@ function Index(props) {
     }
 
     return (
-        <div>
+        <div className="px-5 relative">
             <div className="mb-5 grid grid-cols-2 gap-3">
                 <div>
                     <label htmlFor="" className="block"> Filter Type </label>
@@ -153,9 +151,9 @@ function Index(props) {
                 </div>
                 <div>
                     {
-                        filter.type ? 
-                        <button onClick={handleResetFilter} className="bg-yellow-500 py-2 px-4 block w-full">Reset Filter</button>
-                        : ('')
+                        filter.type || filter.page > 1 ? 
+                            <button onClick={handleResetFilter} className="bg-yellow-500 py-2 px-4 block w-full">Reset Filter</button>
+                            : ('')
                     }
                 </div>
             </div>
@@ -192,6 +190,9 @@ function Index(props) {
                         ('')
                 }
             </div>
+            <button onClick={() => window.scrollTo(0, 0)} className="bg-blue-800 text-white px-2 py-2 fixed z-10 block w-auto h-auto rounded-lg opacity-75 hover:opacity-100" style={{bottom: 0, right: 0, margin: '0 15px 15px 0'}}>
+                ^ back to top
+            </button>
         </div>
     )
 }

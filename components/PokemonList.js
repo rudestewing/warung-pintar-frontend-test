@@ -5,11 +5,11 @@ export default function PokemonList(props) {
     const {pokemons} = props;
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 py-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {
                 pokemons.map((pokemon, index) => {
                     return (
-                        <Link key={index} href={`/pokemons/${pokemon.name}`} className="cursor-pointer hover:cursor-pointer" >
+                        <Link key={index} href={`/pokemon/${pokemon.name}`} className="cursor-pointer hover:cursor-pointer" >
                             <a>
                                 <PokemonCard pokemon={pokemon} />
                             </a>
