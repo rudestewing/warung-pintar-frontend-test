@@ -170,7 +170,7 @@ function Index(props) {
             <div className="mb-5 grid grid-cols-2 gap-3">
                 <div>
                     <label htmlFor="" className="block"> Filter Type </label>
-                    <select onChange={handleSelectType} value={filter.type} className="block w-full">
+                    <select onChange={handleSelectType} value={filter.type} className="block w-full" disabled={isFetching}>
                         <option value=""> All </option>
                         {
                             availableTypes.map((type, index) => {
